@@ -1,48 +1,40 @@
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
+import spacy
 import tkinter as tk
 import tkinter
-
-nltk.download([
-    "names",
-    "stopwords",
-    "state_union",
-    "twitter_samples",
-    "movie_reviews",
-    "averaged_perceptron_tagger",
-    "vader_lexicon",
-    "punkt",
-    ])
-
-sia = SentimentIntensityAnalyzer()
-
-
 
 def tkinter():
     window = tk.Tk() 
     window.minsize(width="300",height="300")
-    window.maxsize(width="500",height="500")
+    window.maxsize(width="900",height="500")
 
     def nltk_func():
-        entryText = entryName.get() 
-        labelName1.insert("")
-        if entryText == " ":
-            labelName1.insert('enter text')
-        else:
-            labelName1.insert("1.0",sia.polarity_scores(entryText))
+        text = text_box.get("1.0",tk.END) 
+        labelName.config(text = " ")
+        
+        analyze1 = []
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(text)
 
-    labelName = tk.Label(text = "  ")
-    labelName.pack()
+        # Analyze syntax
+        analyze = ("Noun phrases:", [chunk.text for chunk in doc.noun_chunks],
+        "Verbs:", [token.lemma_ for token in doc if token.pos_ == "VERB"])
 
-    entryName = tk.Entry()
-    entryName.pack()
+        # Find named entities, phrases and concepts
+        for entity in doc.ents:
+            analyze1.append(entity.text)
+            analyze1.append(entity.label_)
+            
+        labelName.config(text = str(analyze)+str(analyze1))
+
+    text_box = tk.Text()
+    text_box.pack()
 
     buttonName = tk.Button(text="submit", command = nltk_func)
     buttonName.pack()
 
 
-    labelName1 = tk.Label(text = "")
-    labelName1.pack()
+    labelName = tk.Label(text = "")
+    labelName.pack()
 
 
     window.mainloop() 
